@@ -96,6 +96,7 @@ export default function AppBanner() {
     }
 
     return (
+        
         <Box sx={{flexGrow: 1}}>
             <AppBar position="static">
                 <Toolbar>
@@ -121,11 +122,13 @@ export default function AppBanner() {
                             { getAccountMenu(auth.loggedIn) }
                         </IconButton>
                     </Box>
+                    
                 </Toolbar>
             </AppBar>
             {
                 menu
             }
         </Box>
+        
     );
 }

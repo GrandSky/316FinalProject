@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { GlobalStoreContext } from '../store'
 import ListCard from './ListCard.js'
 import MUIDeleteModal from './MUIDeleteModal'
+import Searchbar from './Searchbar'
 
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab'
@@ -14,7 +15,7 @@ import Box from '@mui/material/Box'
 */
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
-
+    
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
@@ -22,6 +23,7 @@ const HomeScreen = () => {
     function handleCreateNewList() {
         store.createNewList();
     }
+    let searchBar=<Searchbar/>
     let listCard = "";
     if (store) {
         listCard = 
@@ -59,6 +61,7 @@ const HomeScreen = () => {
             </Fab>
                 Your Playlists
             </div>
+            <Searchbar/>
             <Box sx={{bgcolor:"background.paper"}} id="list-selector-list">
                 {
                     listCard
