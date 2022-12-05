@@ -3,9 +3,9 @@ export default function SplashScreen() {
         <div id="splash-screen">
             <br></br>
             <br></br>
-            Welcome to The Playlister App!
+            Welcome to The Playlister App
             <div id="medium-text">
-                The Best Music Streaming Website
+                The Best Music Streaming Website!
             </div>
             <br></br>
             <br></br>
