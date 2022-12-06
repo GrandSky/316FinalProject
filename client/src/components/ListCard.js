@@ -6,6 +6,21 @@ import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import TextField from '@mui/material/TextField';
+import List from '@mui/material/List';
+import SongCard from './SongCard.js'
+import MUIEditSongModal from './MUIEditSongModal'
+import MUIRemoveSongModal from './MUIRemoveSongModal'
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Grid  from '@mui/material/Grid';
+import Add from '@mui/icons-material/Add';
+import Undo from '@mui/icons-material/Undo';
+import Redo from '@mui/icons-material/Redo';
+import Button from '@mui/material/Button';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -33,7 +48,13 @@ function ListCard(props) {
             store.setCurrentList(id);
         }
     }
-
+    const handleChange = () => (event) => {
+        if (store.currentList){
+            if (store.currentList._id == idNamePair._id){store.closeCurrentList()} 
+            
+        }
+        else handleLoadList(event, idNamePair._id)
+    };
     function handleToggleEdit(event) {
         event.stopPropagation();
         toggleEdit();
@@ -73,31 +94,122 @@ function ListCard(props) {
     if (store.isListNameEditActive) {
         cardStatus = true;
     }
+    function handleAddNewSong(){
+        store.addNewSong()
+    }
+    function handleUndo(){
+        store.undo()
+    }
+    function handleRedo(){
+        store.redo()
+    }
+    function handleDuplicate(){
+        store.duplicateList()
+    }
+    let modalJSX = "";
+    if (store.isEditSongModalOpen()) {
+        modalJSX = <MUIEditSongModal />;
+    }
+    else if (store.isRemoveSongModalOpen()) {
+        modalJSX = <MUIRemoveSongModal />;
+    }
+
+    // LIST OF SONGS IN THE PLAYLIST
+    let songListJSX = ""
+    if (store.currentList != null) {
+        songListJSX = 
+            <Box id="list-selector-list">
+                <List id="playlist-cards" sx={{overflow: 'scroll', overflowX: "hidden", height: '100%', width: '100%', bgcolor: '#8000F00F'}}>
+                    {store.currentList.songs.map((song, index) => (
+                        <SongCard
+                            id={'playlist-song-' + (index)}
+                            key={'playlist-song-' + (index)}
+                            index={index}
+                            song={song}
+                        />
+                    ))}
+                </List>            
+                {modalJSX}
+
+            </Box>
+    }
+    let open = false
+    
+    function handleLike(){
+        store.addLike(idNamePair._id)
+    }
+    function handleDislike(){
+        store.addDislike(idNamePair._id)
+
+    }
+    if (store.currentList){
+        if (store.currentList._id == idNamePair._id) open = true
+        else open = false
+        console.log(open)
+    }
+    
     let cardElement =
-        <ListItem
+    <Accordion
+        expanded={open}
+        onChange={handleChange()} 
+        elevation={3}
+        disableGutters={true}
+        sx={{borderRadius:"4px", margin: "20px", mt: '10px',bgcolor: '#8000F00F'}}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box
             id={idNamePair._id}
             key={idNamePair._id}
-            sx={{borderRadius:"25px", p: "10px", bgcolor: '#8000F00F', marginTop: '15px', display: 'flex', p: 1 }}
+            sx={{borderRadius:"25px", p: "10px", marginTop: '15px', display: 'flex', p: 1 }}
             style={{transform:"translate(1%,0%)", width: '98%', fontSize: '48pt' }}
             button
-            onClick={(event) => {
-                handleLoadList(event, idNamePair._id)
-            }}
+
         >
             <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
             <Box sx={{ p: 1 }}>
+                <IconButton onClick={handleLike} aria-label='edit'>
+                    <ThumbUpOffAltIcon style={{fontSize:'28pt'}} />{idNamePair.likes}
+                </IconButton>
+            </Box>
+            <Box sx={{ p: 1 }}>
+                <IconButton onClick={handleDislike} aria-label='edit'>
+                    <ThumbDownOffAltIcon style={{fontSize:'28pt'}} />{idNamePair.dislikes}
+                </IconButton>
+            </Box>
+            
+            <Box sx={{ p: 1 }}>
                 <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                    <EditIcon style={{fontSize:'48pt'}} />
+                    <EditIcon style={{fontSize:'28pt'}} />
                 </IconButton>
             </Box>
             <Box sx={{ p: 1 }}>
                 <IconButton onClick={(event) => {
                         handleDeleteList(event, idNamePair._id)
                     }} aria-label='delete'>
-                    <DeleteIcon style={{fontSize:'48pt'}} />
+                    <DeleteIcon style={{fontSize:'28pt'}} />
                 </IconButton>
             </Box>
-        </ListItem>
+            </Box>
+        </AccordionSummary>
+        <AccordionDetails>
+            <Grid item xs={12} overflow='hidden' height='398px' style={{transform:"translate(0%,-10%)"}}>
+                {songListJSX}
+            </Grid>
+            <Grid item xs={12} style={{transform:"translate(0%,-10%)"}}>
+                <IconButton color='secondary' onClick={handleAddNewSong}>
+                    <Add style={{fontSize:'28pt'}} />
+                </IconButton>
+                <IconButton color='secondary'  onClick={handleUndo} >
+                    <Undo style={{fontSize:'28pt'}} />
+                </IconButton>
+                <IconButton color='secondary' onClick={handleRedo} >
+                    <Redo style={{fontSize:'28pt'}} />
+                </IconButton>
+                <Button  variant="text" color='secondary'>Publish</Button>
+                <Button onClick={handleDuplicate} variant="text"color='secondary'>Duplicate</Button>
+                
+            </Grid>
+        </AccordionDetails>
+        </Accordion>
 
     if (editActive) {
         cardElement =

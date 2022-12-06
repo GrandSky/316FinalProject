@@ -1,21 +1,24 @@
 import React, { useContext, useEffect,useState } from 'react'
 import { GlobalStoreContext } from '../store'
+import YouTube from 'react-youtube';
 import ListCard from './ListCard.js'
+import { useHistory } from 'react-router-dom'
 import MUIDeleteModal from './MUIDeleteModal'
+import AuthContext from '../auth'
 import Searchbar from './Searchbar'
-
+import MUIEditSongModal from './MUIEditSongModal'
+import MUIRemoveSongModal from './MUIRemoveSongModal'
+import SongCard from './SongCard.js'
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab'
 import List from '@mui/material/List';
-import Box from '@mui/material/Box'
+
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import YouTubePlayerExample from './YoutubePlaylister.js'
 import { Button, Typography } from '@mui/material'
-import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
-import SkipNextIcon from '@mui/icons-material/SkipNext';
-import StopIcon from '@mui/icons-material/Stop';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+
+import YouTubePlayerExample from './YoutubePlaylister';
+import CommentTab from './CommentTab';
 /*
     This React component lists all the top5 lists in the UI.
     
@@ -23,7 +26,8 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 */
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
-    
+    const { auth } = useContext(AuthContext);
+    store.history = useHistory();
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
@@ -33,10 +37,8 @@ const HomeScreen = () => {
     }
     let searchBar=""
     searchBar= <Searchbar/>;
-    if (store.currentList) {
-            searchBar="";
-        }
-        
+    
+    
     let listCard = "";
     if (store) {
         listCard = 
@@ -59,64 +61,50 @@ const HomeScreen = () => {
             >
                 <AddIcon />
             </Fab>
+            <MUIDeleteModal />
             </List>;
     }
-    let playerTab= 
-    <Typography>
-                    <YouTubePlayerExample sx={{justifyContent:'center',alignItems:'center'}}/>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontFamily:'cursive'
-                        }}>
-                            <h1 >Now Playing</h1>
-                        </div>
-                    <h3 style={{fontFamily:'cursive'}}>Playlist:</h3>
-                    <h3 style={{fontFamily:'cursive'}}>Song #:</h3>
-                    <h3 style={{fontFamily:'cursive'}}>Title:</h3>
-                    <h3 style={{fontFamily:'cursive'}}>Artist</h3>
-                        <br></br>
-                        <br></br>
-                    <Grid container spacing={0}>
-                        <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth style={{color:'white',backgroundColor:'black'}}><SkipPreviousIcon></SkipPreviousIcon></Button>
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth style={{color:'white',backgroundColor:'black'}}><StopIcon></StopIcon></Button>
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth style={{color:'white',backgroundColor:'black'}}><PlayArrowIcon></PlayArrowIcon></Button>
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth style={{color:'white',backgroundColor:'black'}}><SkipNextIcon></SkipNextIcon></Button>
-                        </Grid>
-                    </Grid>
-                    </Typography>
-    let commentTab=
-    <Typography>hello</Typography>
+    let modalJSX = "";
+    if (store.isEditSongModalOpen()) {
+        modalJSX = <MUIEditSongModal />;
+    }
+    else if (store.isRemoveSongModalOpen()) {
+        modalJSX = <MUIRemoveSongModal />;
+    }
+
+    let addListButton=<div id="list-selector-heading">
+    <Fab sx={{transform:"translate(-20%, 0%)"}}
+        color="primary" 
+        aria-label="add"
+        id="add-list-button"
+        onClick={handleCreateNewList}
+    >
+        <AddIcon />
+    </Fab>
+        Your Playlists
+    </div>
+
+    let playerTab= <YouTubePlayerExample/>
+    
+    let commentTab=<CommentTab/>
 
     const[tab,setTab] =useState(playerTab);
+    
     function handlePlayerButton(){
         setTab(playerTab)
     }
     function handleCommentButton(){
         setTab(commentTab)
     }
+
+    let text ="";
+    if (auth.loggedIn && store.currentList){
+        text = store.currentList.name;
+    }
     return (
 
         <div id="playlist-selector">
-            <div id="list-selector-heading">
-            <Fab sx={{transform:"translate(-20%, 0%)"}}
-                color="primary" 
-                aria-label="add"
-                id="add-list-button"
-                onClick={handleCreateNewList}
-            >
-                <AddIcon />
-            </Fab>
-                Your Playlists
-            </div>
+            {addListButton}
             {searchBar}
             <Grid container component="main" sx={{ height: '100vh' }}>
                 <Grid item
@@ -135,22 +123,25 @@ const HomeScreen = () => {
                     {
                     listCard
                     }
-                     <MUIDeleteModal />
+                     
                  </Grid>
-                <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-                    <br></br>
-                    
-                    <Grid container spacing={0}>
-                        <Grid item xs={12} sm={6}>
-                            <Button variant='text' onClick={handlePlayerButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Player</Button>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Button variant='text' onClick={handleCommentButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Comments</Button>
-                        </Grid>
-                    </Grid>
-                    {tab}
-                </Grid>
-            </Grid>        
+                 <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        <br></br>
+        <Grid container spacing={0}>
+            <Grid item xs={12} sm={6}>
+                <Button variant='contained' onClick={handlePlayerButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Player</Button>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <Button variant='contained' disabled={!store.currentList} onClick={handleCommentButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Comments</Button>
+            </Grid>
+        </Grid>
+        {tab}
+        </Grid> 
+                <div id="playlister-statusbar">
+            {text}
+        </div>
+            </Grid> 
+                
         </div>)
 }
 
