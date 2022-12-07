@@ -31,6 +31,26 @@ export default function AppBanner() {
     const handleHouseClick = () => {
         
     }
+    function handleSortName(){
+        store.sortByChar()
+        handleMenuClose();
+    }
+    function handleSortDate(){
+        store.sortByPublishTime()
+        handleMenuClose();
+    }
+    function handleSortListens(){
+        store.sortByListens()
+        handleMenuClose();
+    }
+    function handleSortLikes(){
+        store.sortByLikes()
+        handleMenuClose();
+    }
+    function handleSortDislikes(){
+        store.sortByDislikes()
+        handleMenuClose();
+    }
     const menuId = 'primary-search-account-menu';
     const sortMenu=(
         <Menu
@@ -48,9 +68,11 @@ export default function AppBanner() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}><Link >Name(A-Z)</Link></MenuItem>
-            <MenuItem onClick={handleMenuClose}><Link >Publish Date(Newest)</Link></MenuItem>
-            <MenuItem onClick={handleMenuClose}><Link >Listens(High-Low)</Link></MenuItem>
+            <MenuItem onClick={handleSortName}>Name(A-Z)</MenuItem>
+            <MenuItem onClick={handleSortDate}>Publish Date(Newest)</MenuItem>
+            <MenuItem onClick={handleSortListens}>Listens(High-Low)</MenuItem>
+            <MenuItem onClick={handleSortLikes}>Likes(High-Low)</MenuItem>
+            <MenuItem onClick={handleSortDislikes}>Dislikes(High-Low)</MenuItem>
         </Menu>
     );
     return (
@@ -115,8 +137,7 @@ export default function AppBanner() {
                         <IconButton
                             size="large"
                             edge="end"
-                            aria-label="account of current user"
-                            aria-controls={menuId}
+                            aria-label="sort"
                             aria-haspopup="true"
                             onClick={handleProfileMenuOpen}
                             color="inherit"

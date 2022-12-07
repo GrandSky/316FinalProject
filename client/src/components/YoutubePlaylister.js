@@ -1,4 +1,4 @@
-import React, { useContext, useEffect,useState } from 'react'
+import React, { useContext,useRef, useEffect,useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import YouTube from 'react-youtube';
 
@@ -9,9 +9,11 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import StopIcon from '@mui/icons-material/Stop';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import YouTubeCard from './YouTubeCard';
 
 export default function YouTubePlayerExample() {
     const { store } = useContext(GlobalStoreContext);
+    const playerRef = useRef(null);
     // THIS EXAMPLE DEMONSTRATES HOW TO DYNAMICALLY MAKE A
     // YOUTUBE PLAYER AND EMBED IT IN YOUR SITE. IT ALSO
     // DEMONSTRATES HOW TO IMPLEMENT A PLAYLIST THAT MOVES
@@ -25,7 +27,7 @@ export default function YouTubePlayerExample() {
     let songNumber=""
 
     // THIS IS THE INDEX OF THE SONG CURRENTLY IN USE IN THE PLAYLIST
-    let currentSong = 0;
+    let index = store.currentSongIndex;
     const playerOptions = {
         height: '400',
         width: '565',
@@ -36,29 +38,26 @@ export default function YouTubePlayerExample() {
     };
     if(store.currentList){
         currentList= store.currentList.name  
-        songNumber=currentSong+1
+        songNumber=index+1
         for(let x=0;x<store.currentList.songs.length;x++ ){
             playlist.push(store.currentList.songs[x].youTubeId)
             songName.push(store.currentList.songs[x].title)
             artist.push(store.currentList.songs[x].artist)
         }
     }
+    
     // THIS FUNCTION LOADS THE CURRENT SONG INTO
     // THE PLAYER AND PLAYS IT
     function loadAndPlayCurrentSong(player) {
-        let song = playlist[currentSong];
+        let song = playlist[index];
         player.loadVideoById(song);
         player.playVideo();
     }
 
     // THIS FUNCTION INCREMENTS THE PLAYLIST SONG TO THE NEXT ONE
-    let eventTarget=""
+    
     function onPlayerReady(event) {
-        if(store.currentList){
-            eventTarget= event.target
-        }
-        loadAndPlayCurrentSong(event.target);
-        event.target.playVideo();
+        playerRef.current = event.target
     }
 
     // THIS IS OUR EVENT HANDLER FOR WHEN THE YOUTUBE PLAYER'S STATE
@@ -91,38 +90,44 @@ export default function YouTubePlayerExample() {
         }
     }
     function incSong() {
-        currentSong++;
-        currentSong = currentSong % playlist.length;
+        let indexx= index
+        indexx++;
+        indexx = indexx % playlist.length;
+        store.setCurrentSong(indexx)
         
     }
     function decreSong(){
-        currentSong--;
-        if(currentSong<0){
-            currentSong+=playlist.length
+        let indexx= index
+        indexx--;
+        if(indexx<0){
+            indexx+=playlist.length
         }
+        store.setCurrentSong(indexx)
     }
+
     const handlePreviousSong = () => {
         console.log("handlePrevious")
         decreSong();
-        loadAndPlayCurrentSong(eventTarget);
+        loadAndPlayCurrentSong(playerRef.current);
     }
     const handlePause = () => {
-        eventTarget.pauseVideo();
+        playerRef.current.pauseVideo();
     }
     const handlePlay = () => {
-        eventTarget.playVideo();
+        playerRef.current.playVideo();
     }
     const handleNextSong = () => {
         
         incSong();
-        loadAndPlayCurrentSong(eventTarget);
+        loadAndPlayCurrentSong(playerRef.current);
+    
     }
     
-
     return <>
         <Typography>
         <YouTube
-    videoId={playlist[currentSong]}
+        ref={playerRef}
+    videoId={playlist[index]}
     opts={playerOptions}
     onReady={onPlayerReady}
     onStateChange={onPlayerStateChange} />
@@ -132,26 +137,26 @@ export default function YouTubePlayerExample() {
                         justifyContent: 'center',
                         fontFamily:'sans-serif'
                         }}>
-                            <h1 >Now Playing</h1>
+                         <h1 >Now Playing</h1>
                     </div>
                     <h3 style={{fontFamily:'sans-serif'}}>Playlist:{currentList}</h3>
                     <h3 style={{fontFamily:'sans-serif'}}>Song #:{songNumber}</h3>
-                    <h3 style={{fontFamily:'sans-serif'}}>Title:{songName[currentSong]}</h3>
-                    <h3 style={{fontFamily:'sans-serif'}}>Artist:{artist[currentSong]}</h3>
+                    <h3 style={{fontFamily:'sans-serif'}}>Title:{songName[index]}</h3>
+                    <h3 style={{fontFamily:'sans-serif'}}>Artist:{artist[index]}</h3>
                         <br></br>
                         <br></br>
                     <Grid container spacing={0}>
                         <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth onClick={handlePreviousSong} style={{color:'white',backgroundColor:'black'}}><SkipPreviousIcon></SkipPreviousIcon></Button>
+                            <Button variant='outlined' fullWidth onClick={handlePreviousSong} style={{color:'black',backgroundColor:'white'}}><SkipPreviousIcon style={{fontSize:'18pt'}}></SkipPreviousIcon></Button>
                         </Grid>
                         <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth onClick={handlePause} style={{color:'white',backgroundColor:'black'}}><StopIcon></StopIcon></Button>
+                            <Button variant='outlined' fullWidth onClick={handlePause} style={{color:'black',backgroundColor:'white'}}><StopIcon style={{fontSize:'18pt'}}></StopIcon></Button>
                         </Grid>
                         <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth onClick={handlePlay} style={{color:'white',backgroundColor:'black'}}><PlayArrowIcon></PlayArrowIcon></Button>
+                            <Button variant='outlined' fullWidth onClick={handlePlay} style={{color:'black',backgroundColor:'white'}}><PlayArrowIcon style={{fontSize:'18pt'}}></PlayArrowIcon></Button>
                         </Grid>
                         <Grid item xs={12} sm={3}>
-                            <Button variant='text' fullWidth onClick={handleNextSong} style={{color:'white',backgroundColor:'black'}}><SkipNextIcon></SkipNextIcon></Button>
+                            <Button variant='outlined' fullWidth onClick={handleNextSong} style={{color:'black',backgroundColor:'white'}}><SkipNextIcon style={{fontSize:'18pt'}}></SkipNextIcon></Button>
                         </Grid>
                     </Grid>
                     </Typography>

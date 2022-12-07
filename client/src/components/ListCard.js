@@ -46,6 +46,7 @@ function ListCard(props) {
 
             // CHANGE THE CURRENT LIST
             store.setCurrentList(id);
+            store.incListen(idNamePair._id);
         }
     }
     const handleChange = () => (event) => {
@@ -142,10 +143,35 @@ function ListCard(props) {
         store.addDislike(idNamePair._id)
 
     }
+    function handlePublish(){
+        store.publishList(idNamePair._id)
+    }
+    let publishButton=""
+    let likesAndDislikes=""
+    let publishedDate=""
+    let author=""
     if (store.currentList){
         if (store.currentList._id == idNamePair._id) open = true
         else open = false
-        console.log(open)
+        console.log(store.currentList.publishDate)
+        
+    }
+    if(idNamePair.publishTime==0){
+        publishButton=<Button onClick={handlePublish} variant="text" color='secondary'>Publish</Button>
+    }else{
+        author=<Box style={{fontSize: '12pt'}}>By:{idNamePair.ownerUsername}</Box>
+        publishedDate=<Box style={{fontSize: '12pt'}}>Publish Date:{idNamePair.publishDate}</Box>
+        likesAndDislikes=
+        <><Box sx={{ p: 1 }}>
+        <IconButton onClick={handleLike} aria-label='edit'>
+            <ThumbUpOffAltIcon style={{fontSize:'28pt'}} />{idNamePair.likes}
+        </IconButton>
+    </Box>
+    <Box sx={{ p: 1 }}>
+        <IconButton onClick={handleDislike} aria-label='edit'>
+            <ThumbDownOffAltIcon style={{fontSize:'28pt'}} />{idNamePair.dislikes}
+        </IconButton>
+    </Box></>
     }
     
     let cardElement =
@@ -162,19 +188,16 @@ function ListCard(props) {
             sx={{borderRadius:"25px", p: "10px", marginTop: '15px', display: 'flex', p: 1 }}
             style={{transform:"translate(1%,0%)", width: '98%', fontSize: '48pt' }}
             button
-
+    
         >
-            <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={handleLike} aria-label='edit'>
-                    <ThumbUpOffAltIcon style={{fontSize:'28pt'}} />{idNamePair.likes}
-                </IconButton>
+            <Box sx={{ p: 1, flexGrow: 1 }}>
+            <Box >{idNamePair.name}</Box>
+            {author}
+            <Box style={{fontSize: '12pt'}}>Listens:{idNamePair.listens}</Box>
+            {publishedDate}
             </Box>
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={handleDislike} aria-label='edit'>
-                    <ThumbDownOffAltIcon style={{fontSize:'28pt'}} />{idNamePair.dislikes}
-                </IconButton>
-            </Box>
+            
+            {likesAndDislikes}
             
             <Box sx={{ p: 1 }}>
                 <IconButton onClick={handleToggleEdit} aria-label='edit'>
@@ -204,8 +227,9 @@ function ListCard(props) {
                 <IconButton color='secondary' onClick={handleRedo} >
                     <Redo style={{fontSize:'28pt'}} />
                 </IconButton>
-                <Button  variant="text" color='secondary'>Publish</Button>
+                {publishButton}
                 <Button onClick={handleDuplicate} variant="text"color='secondary'>Duplicate</Button>
+
                 
             </Grid>
         </AccordionDetails>
