@@ -73,7 +73,48 @@ function AuthContextProvider(props) {
             });
         }
     }
-
+    auth.logInAsGuest = async function() {
+        try{
+            const response = await api.loginUser("guest@playlister.com", "guestpassword");
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.LOGIN_USER,
+                    payload: {
+                        user: response.data.user,
+                        loggedIn: true,
+                        errorMessage: null
+                    }
+                })
+                history.push("/");
+            }
+        } catch(error){
+            try{
+                const response = await api.registerUser("Guest", "User", "guest@playlister.com","Guest", "guestpassword", "guestpassword");
+                if (response.status === 200) {
+                    console.log("Registered Sucessfully");
+                    authReducer({
+                        type: AuthActionType.REGISTER_USER,
+                        payload: {
+                            user: response.data.user,
+                            loggedIn: true,
+                            errorMessage: null
+                        }
+                    })
+                    console.log("creating guest user")
+                    auth.loginUser("guest@playlister.com", "guestpassword");
+                }
+            } catch(error){
+                authReducer({
+                    type: AuthActionType.REGISTER_USER,
+                    payload: {
+                        user: auth.user,
+                        loggedIn: false,
+                        errorMessage: error.response.data.errorMessage
+                    }
+                })
+            }
+        }
+    }
     auth.registerUser = async function(firstName, lastName, email,username, password, passwordVerify) {
         console.log("REGISTERING USER");
         try{   

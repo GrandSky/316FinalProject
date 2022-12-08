@@ -17,26 +17,26 @@ export default function CommentTab() {
     }
     let comments=""
     if(store.currentList){
-        comments= 
-        store.currentList.comments.map((pair)=>(
-            <CommentCards
-                name={pair.name}
-                comments={pair.comment}
-            />       
-        ))
+        comments= <><Grid item xs={8}>
+        <List sx={{overflow: 'scroll', overflowX: "hidden", height: 537, width: '100%', bgcolor: 'white'}}>
+        {store.currentList.comments.map((pair)=>(
+        <CommentCards
+            name={pair.name}
+            comments={pair.comment}
+        />       
+    ))}
+             </List>  
+    </Grid>
+    <Grid item xs={4}>
+            <TextField onKeyDown={handleComment} id="outlined-text" label="Add Comment" variant="outlined" fullWidth />
+    </Grid></>
+        
         
     }
     
     return <>
     <Grid container direction='column' spacing={2} justifyedContent='centered' alignItems='stretch'>
-        <Grid item xs={8}>
-            <List sx={{overflow: 'scroll', overflowX: "hidden", height: 537, width: '100%', bgcolor: 'white'}}>
-             {comments}
-                 </List>  
-        </Grid>
-        <Grid item xs={4}>
-                <TextField onKeyDown={handleComment} id="outlined-text" label="Add Comment" variant="outlined" fullWidth />
-        </Grid>
+        {comments}
     </Grid>
     </>
 }

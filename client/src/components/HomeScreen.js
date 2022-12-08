@@ -83,6 +83,23 @@ const HomeScreen = () => {
     </Fab>
         Your Playlists
     </div>
+    if(auth.user.username=="Guest"){
+        addListButton=""
+        listCard =<List sx={{width: '100%', bgcolor: 'background.paper', mb:"20px" }}>
+        {
+            store.idNamePairs.map((pair) => (
+                <ListCard
+                    key={pair._id}
+                    idNamePair={pair}
+                    selected={false}
+                />
+            ))
+            
+        }
+        <MUIDeleteModal />
+        </List>;
+    }
+    
 
     let playerTab= <YouTubePlayerExample/>
     
@@ -98,15 +115,20 @@ const HomeScreen = () => {
     }
 
     let text ="";
+    let disableComments=true
     if (auth.loggedIn && store.currentList){
         text = store.currentList.name;
+        if(store.currentList.publishTime!=0){
+            disableComments=false
+        }
     }
+
     return (
 
         <div id="playlist-selector">
             {addListButton}
             {searchBar}
-            <Grid container component="main" sx={{ height: '100vh' }}>
+            <Grid container component="main" sx={{ height: '110vh' }}>
                 <Grid item
                 xs={false}
                 sm={4}
@@ -132,7 +154,7 @@ const HomeScreen = () => {
                 <Button variant='contained' onClick={handlePlayerButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Player</Button>
             </Grid>
             <Grid item xs={12} sm={6}>
-                <Button variant='contained' disabled={!store.currentList} onClick={handleCommentButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Comments</Button>
+                <Button variant='contained' disabled={disableComments} onClick={handleCommentButton} fullWidth style={{color:'white',backgroundColor:'#007fff'}}>Comments</Button>
             </Grid>
         </Grid>
         {tab}

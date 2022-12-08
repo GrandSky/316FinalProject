@@ -21,6 +21,7 @@ import Redo from '@mui/icons-material/Redo';
 import Button from '@mui/material/Button';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import AuthContext from '../auth'
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -34,6 +35,7 @@ function ListCard(props) {
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
+    const { auth } = useContext(AuthContext);
 
     function handleLoadList(event, id) {
         console.log("handleLoadList for " + id);
@@ -116,24 +118,7 @@ function ListCard(props) {
     }
 
     // LIST OF SONGS IN THE PLAYLIST
-    let songListJSX = ""
-    if (store.currentList != null) {
-        songListJSX = 
-            <Box id="list-selector-list">
-                <List id="playlist-cards" sx={{overflow: 'scroll', overflowX: "hidden", height: '100%', width: '100%', bgcolor: '#8000F00F'}}>
-                    {store.currentList.songs.map((song, index) => (
-                        <SongCard
-                            id={'playlist-song-' + (index)}
-                            key={'playlist-song-' + (index)}
-                            index={index}
-                            song={song}
-                        />
-                    ))}
-                </List>            
-                {modalJSX}
-
-            </Box>
-    }
+    
     let open = false
     
     function handleLike(){
@@ -173,7 +158,59 @@ function ListCard(props) {
         </IconButton>
     </Box></>
     }
-    
+    let allowEdit=""
+    let allowEdit2=""
+    let allowDeleteButton=true
+    console.log(auth)
+    if(idNamePair.ownerUsername ==auth.user.username){
+        allowDeleteButton=false
+
+        allowEdit=
+        <><Box sx={{ p: 1 }}>
+        <IconButton onClick={handleToggleEdit} aria-label='edit'>
+            <EditIcon style={{fontSize:'28pt'}} />
+        </IconButton>
+    </Box>
+    <Box sx={{ p: 1 }}>
+        <IconButton onClick={(event) => {
+                handleDeleteList(event, idNamePair._id)
+            }} aria-label='delete'>
+            <DeleteIcon style={{fontSize:'28pt'}} />
+        </IconButton>
+    </Box></>
+
+
+        allowEdit2=<>
+        <IconButton color='secondary' onClick={handleAddNewSong}>
+                    <Add style={{fontSize:'28pt'}} />
+                </IconButton>
+                <IconButton color='secondary'  onClick={handleUndo} >
+                    <Undo style={{fontSize:'28pt'}} />
+                </IconButton>
+                <IconButton color='secondary' onClick={handleRedo} >
+                    <Redo style={{fontSize:'28pt'}} />
+                </IconButton>
+                {publishButton}</>
+    }
+    let songListJSX = ""
+    if (store.currentList != null) {
+        songListJSX = 
+            <Box id="list-selector-list">
+                <List id="playlist-cards" sx={{overflow: 'scroll', overflowX: "hidden", height: '100%', width: '100%', bgcolor: '#8000F00F'}}>
+                    {store.currentList.songs.map((song, index) => (
+                        <SongCard
+                            id={'playlist-song-' + (index)}
+                            key={'playlist-song-' + (index)}
+                            index={index}
+                            song={song}
+                            allow={allowDeleteButton}
+                        />
+                    ))}
+                </List>            
+                {modalJSX}
+
+            </Box>
+    }
     let cardElement =
     <Accordion
         expanded={open}
@@ -199,18 +236,7 @@ function ListCard(props) {
             
             {likesAndDislikes}
             
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                    <EditIcon style={{fontSize:'28pt'}} />
-                </IconButton>
-            </Box>
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={(event) => {
-                        handleDeleteList(event, idNamePair._id)
-                    }} aria-label='delete'>
-                    <DeleteIcon style={{fontSize:'28pt'}} />
-                </IconButton>
-            </Box>
+            {allowEdit}
             </Box>
         </AccordionSummary>
         <AccordionDetails>
@@ -218,16 +244,8 @@ function ListCard(props) {
                 {songListJSX}
             </Grid>
             <Grid item xs={12} style={{transform:"translate(0%,-10%)"}}>
-                <IconButton color='secondary' onClick={handleAddNewSong}>
-                    <Add style={{fontSize:'28pt'}} />
-                </IconButton>
-                <IconButton color='secondary'  onClick={handleUndo} >
-                    <Undo style={{fontSize:'28pt'}} />
-                </IconButton>
-                <IconButton color='secondary' onClick={handleRedo} >
-                    <Redo style={{fontSize:'28pt'}} />
-                </IconButton>
-                {publishButton}
+                
+                {allowEdit2}
                 <Button onClick={handleDuplicate} variant="text"color='secondary'>Duplicate</Button>
 
                 

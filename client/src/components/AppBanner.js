@@ -4,7 +4,7 @@ import AuthContext from '../auth';
 import { GlobalStoreContext } from '../store'
 
 import EditToolbar from './EditToolbar'
-
+import playlisterLogo from './playlisterLogo/playlisterLogo.png';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -36,6 +36,10 @@ export default function AppBanner() {
     const handleHouseClick = () => {
         store.closeCurrentList();
     }
+    const handleGuestLogin=()=>{
+        handleMenuClose()
+        auth.logInAsGuest()
+    }
 
     const menuId = 'primary-search-account-menu';
     const loggedOutMenu = (
@@ -56,7 +60,7 @@ export default function AppBanner() {
         >
             <MenuItem onClick={handleMenuClose}><Link to='/login/'>Login</Link></MenuItem>
             <MenuItem onClick={handleMenuClose}><Link to='/register/'>Create New Account</Link></MenuItem>
-            <MenuItem onClick={handleMenuClose}><Link to='/register/'>Continue As Guest</Link></MenuItem>
+            <MenuItem onClick={handleGuestLogin}><Link to='/'>Continue As Guest</Link></MenuItem>
         </Menu>
     );
     const loggedInMenu = 
@@ -107,7 +111,7 @@ export default function AppBanner() {
                         component="div"
                         sx={{ display: { xs: 'none', sm: 'block' } }}                        
                     >
-                        <Link onClick={handleHouseClick} style={{ textDecoration: 'none', color: 'white' }} to='/'>⌂</Link>
+                        <img src={playlisterLogo} alt="playlisterLogo" width='265px'/>
                     </Typography>
                     <Box sx={{ flexGrow: 1 }}>{editToolbar}</Box>
                     <Box sx={{ height: "90px", display: { xs: 'none', md: 'flex' } }}>
