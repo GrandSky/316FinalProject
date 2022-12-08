@@ -17,6 +17,7 @@ const playlistSchema = new Schema(
                     [{name:String,
                     comment:String}],
                 required:true},
+        publishedBool:{type:Boolean,required:true},
         publishTime:{type:Number,required:true},
         publishDate:{type:String,required:true},
         ownerUsername:{type:String,required:true},

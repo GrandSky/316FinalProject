@@ -17,7 +17,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
 import SortIcon from '@mui/icons-material/Sort';
 
-export default function AppBanner() {
+export default function Searchbar() {
     const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -28,8 +28,13 @@ export default function AppBanner() {
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
-    const handleHouseClick = () => {
-        
+    const handleOwned = () => {
+        store.loadIdNamePairs()
+        console.log(store.idNamePairs)
+    }
+    const handlePublished =()=>{
+        store.loadPublishedNamePairs()
+        console.log(store.idNamePairs)
     }
     function handleSortName(){
         store.sortByChar()
@@ -86,7 +91,7 @@ export default function AppBanner() {
                     component="div"
                     sx={{width:.05, display: { xs: 'none', sm: 'block' } }}
                 >
-                     <Link onClick={handleHouseClick} style={{ textDecoration: 'none', color: 'white' }} to='/'><HouseIcon/></Link>
+                     <Link onClick={handleOwned} style={{ textDecoration: 'none', color: 'white' }} to='/'><HouseIcon/></Link>
                 </Typography>
                 <Typography       
                     variant="h4"
@@ -94,7 +99,7 @@ export default function AppBanner() {
                     component="div"
                     sx={{width:.05, display: { xs: 'none', sm: 'block' } }}
                 >
-                     <Link onClick={handleHouseClick} style={{ textDecoration: 'none', color: 'white' }} to='/'><GroupsIcon/></Link>
+                     <Link onClick={handlePublished} style={{ textDecoration: 'none', color: 'white' }} to='/'><GroupsIcon/></Link>
                 </Typography>
                 <Typography       
                     variant="h4"
@@ -102,7 +107,7 @@ export default function AppBanner() {
                     component="div"
                     sx={{width:.05, display: { xs: 'none', sm: 'block' } }}
                 >
-                     <Link onClick={handleHouseClick} style={{ textDecoration: 'none', color: 'white' }} to='/'><PersonIcon/></Link>
+                     <Link onClick={handlePublished} style={{ textDecoration: 'none', color: 'white' }} to='/'><PersonIcon/></Link>
                 </Typography>
                 <Typography       
                     variant="h4"

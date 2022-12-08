@@ -37,6 +37,7 @@ function ListCard(props) {
     const { idNamePair, selected } = props;
     const { auth } = useContext(AuthContext);
 
+
     function handleLoadList(event, id) {
         console.log("handleLoadList for " + id);
         if (!event.target.disabled) {
@@ -48,7 +49,6 @@ function ListCard(props) {
 
             // CHANGE THE CURRENT LIST
             store.setCurrentList(id);
-            store.incListen(idNamePair._id);
         }
     }
     const handleChange = () => (event) => {
@@ -158,6 +158,7 @@ function ListCard(props) {
         </IconButton>
     </Box></>
     }
+
     let allowEdit=""
     let allowEdit2=""
     let allowDeleteButton=true
@@ -194,6 +195,7 @@ function ListCard(props) {
     }
     let songListJSX = ""
     if (store.currentList != null) {
+        
         songListJSX = 
             <Box id="list-selector-list">
                 <List id="playlist-cards" sx={{overflow: 'scroll', overflowX: "hidden", height: '100%', width: '100%', bgcolor: '#8000F00F'}}>

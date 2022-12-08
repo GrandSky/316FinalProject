@@ -69,20 +69,12 @@ deletePlaylist = async (req, res) => {
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
             User.findOne({ email: list.ownerEmail }, (err, user) => {
-                console.log("user._id: " + user._id);
                 console.log("req.userId: " + req.userId);
-                if (user._id == req.userId) {
-                    console.log("correct user!");
+                
                     Playlist.findOneAndDelete({ _id: req.params.id }, () => {
                         return res.status(200).json({});
                     }).catch(err => console.log(err))
-                }
-                else {
-                    console.log("incorrect user!");
-                    return res.status(400).json({ 
-                        errorMessage: "authentication error" 
-                    });
-                }
+            
             });
         }
         asyncFindUser(playlist);
@@ -105,16 +97,10 @@ getPlaylistById = async (req, res) => {
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
             await User.findOne({ email: list.ownerEmail }, (err, user) => {
-                console.log("user._id: " + user._id);
-                console.log("req.userId: " + req.userId);
-                if (user._id == req.userId) {
-                    console.log("correct user!");
-                    return res.status(200).json({ success: true, playlist: list })
-                }
-                else {
-                    console.log("incorrect user!");
-                    return res.status(400).json({ success: false, description: "authentication error" });
-                }
+                
+                return res.status(200).json({ success: true, playlist: list })
+                    
+                
             });
         }
         asyncFindUser(list);
@@ -155,6 +141,7 @@ getPlaylistPairs = async (req, res) => {
                             dislikes:list.dislikes,
                             comments:list.comments,
                             listens:list.listens,
+                            publishedBool:list.publishedBool,
                             publishTime:list.publishTime,
                             publishDate:list.publishDate,
                             ownerUsername:list.ownerUsername
@@ -166,6 +153,54 @@ getPlaylistPairs = async (req, res) => {
             }).catch(err => console.log(err))
         }
         asyncFindList(user.email);
+    }).catch(err => console.log(err))
+}
+getPublishedPlaylistPairs = async (req, res) => {
+    if(auth.verifyUser(req) === null){
+        return res.status(400).json({
+            errorMessage: 'UNAUTHORIZED'
+        })
+    }
+    console.log("getPublishedPlaylistPairs");
+    await User.findOne({ _id: req.userId }, (err, user) => {
+        console.log("find user with id " + req.userId);
+        async function asyncFindList() {
+            await Playlist.find({ publishedBool: true }, (err, playlists) => {
+                console.log("found Playlists: " + JSON.stringify(playlists));
+                if (err) {
+                    return res.status(400).json({ success: false, error: err })
+                }
+                if (!playlists) {
+                    console.log("!playlists.length");
+                    return res
+                        .status(404)
+                        .json({ success: false, error: 'Playlists not found' })
+                }
+                else {
+                    console.log("Send the Playlist pairs");
+                    // PUT ALL THE LISTS INTO ID, NAME PAIRS
+                    let pairs = [];
+                    for (let key in playlists) {
+                        let list = playlists[key];
+                        let pair = {
+                            _id: list._id,
+                            name: list.name,
+                            likes:list.likes,
+                            dislikes:list.dislikes,
+                            comments:list.comments,
+                            listens:list.listens,
+                            publishedBool:list.publishedBool,
+                            publishTime:list.publishTime,
+                            publishDate:list.publishDate,
+                            ownerUsername:list.ownerUsername
+                        };
+                        pairs.push(pair);
+                    }
+                    return res.status(200).json({ success: true, idNamePairs: pairs })
+                }
+            }).catch(err => console.log(err))
+        }
+        asyncFindList();
     }).catch(err => console.log(err))
 }
 getPlaylists = async (req, res) => {
@@ -215,9 +250,9 @@ updatePlaylist = async (req, res) => {
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
             await User.findOne({ email: list.ownerEmail }, (err, user) => {
-                console.log("user._id: " + user._id);
+                
                 console.log("req.userId: " + req.userId);
-                if (user._id == req.userId) {
+                
                     console.log("correct user!");
                     console.log("req.body.name: " + req.body.name);
 
@@ -227,6 +262,7 @@ updatePlaylist = async (req, res) => {
                     list.likes=body.playlist.likes;
                     list.dislikes=body.playlist.dislikes;
                     list.listens=body.playlist.listens;
+                    list.publishedBool=body.playlist.publishedBool;
                     list.publishTime=body.playlist.publishTime;
                     list.publishDate=body.playlist.publishDate;
                     list.ownerUsername=body.playlist.ownerUsername
@@ -247,11 +283,7 @@ updatePlaylist = async (req, res) => {
                                 message: 'Playlist not updated!',
                             })
                         })
-                }
-                else {
-                    console.log("incorrect user!");
-                    return res.status(400).json({ success: false, description: "authentication error" });
-                }
+                
             });
         }
         asyncFindUser(playlist);
@@ -263,5 +295,6 @@ module.exports = {
     getPlaylistById,
     getPlaylistPairs,
     getPlaylists,
-    updatePlaylist
+    updatePlaylist,
+    getPublishedPlaylistPairs
 }

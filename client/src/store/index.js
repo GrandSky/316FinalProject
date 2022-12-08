@@ -362,7 +362,7 @@ function GlobalStoreContextProvider(props) {
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
         let newListName = "Untitled" + store.newListCounter;
-        const response = await api.createPlaylist(newListName, [], auth.user.email,0,0,[],0,0,newListName, auth.user.username);
+        const response = await api.createPlaylist(newListName, [], auth.user.email,0,0,[],0,false,0,newListName, auth.user.username);
         console.log("createNewList response: " + response);
         if (response.status === 201) {
             tps.clearAllTransactions();
@@ -382,7 +382,7 @@ function GlobalStoreContextProvider(props) {
     }
     store.duplicateList = async function () {
         let newListName = "" + store.currentList.name + " Copy " + store.newListCounter
-        const response = await api.createPlaylist(newListName, store.currentList.songs, auth.user.email, 0,0,[],0,0,newListName,auth.user.username);
+        const response = await api.createPlaylist(newListName, store.currentList.songs, auth.user.email, 0,0,[],0,false,0,newListName,auth.user.username);
         console.log("duplicateList response: " + response);
         if (response.status === 201) {
             tps.clearAllTransactions();
@@ -480,7 +480,23 @@ function GlobalStoreContextProvider(props) {
         }
         asyncLoadIdNamePairs();
     }
-
+    store.loadPublishedNamePairs = function(){
+        async function asyncLoadPublishedNamePairs() {
+            const response = await api.getPublishedPlaylistPairs();
+            if (response.data.success) {
+                let pairsArray = response.data.idNamePairs;
+                console.log(pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            }
+            else {
+                console.log("API FAILED TO GET THE LIST PAIRS");
+            }
+        }
+        asyncLoadPublishedNamePairs();
+    }
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
     // FUNCTIONS ARE markListForDeletion, deleteList, deleteMarkedList,
@@ -638,6 +654,7 @@ function GlobalStoreContextProvider(props) {
                 console.log(Time)
                 playlist.publishTime= Time;
                 playlist.publishDate=daty
+                playlist.publishedBool=true;
                 async function updateList(playlist) {
                     response = await api.updatePlaylistById(playlist._id, playlist);
                     if (response.data.success) {
